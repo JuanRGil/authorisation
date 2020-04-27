@@ -1,1 +1,0 @@
-INSERT into ROLE values ('COMMON_USER');

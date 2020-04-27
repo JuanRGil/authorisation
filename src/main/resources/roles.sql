@@ -1,0 +1,1 @@
+MERGE into ROLE values ('COMMON_USER');
