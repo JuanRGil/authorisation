@@ -4,10 +4,10 @@ import com.gil.arizon.juan.authorisation.domain.MyUser;
 import com.gil.arizon.juan.authorisation.dto.LoginRequestDto;
 import com.gil.arizon.juan.authorisation.dto.LoginResponseDto;
 import com.gil.arizon.juan.authorisation.dto.SignUpDto;
+import com.gil.arizon.juan.authorisation.mapper.MyUserMapper;
 import com.gil.arizon.juan.authorisation.repository.MyUserRepository;
 import com.gil.arizon.juan.authorisation.security.JwtTokenProvider;
 import java.util.Optional;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +32,10 @@ public class AuthController {
   MyUserRepository userRepository;
 
   @Autowired
-  PasswordEncoder passwordEncoder;
+  JwtTokenProvider tokenProvider;
 
   @Autowired
-  JwtTokenProvider tokenProvider;
+  MyUserMapper myUserMapper;
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDto loginRequest) {
@@ -56,22 +56,14 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<String> registerUser(@RequestBody SignUpDto signUpRequest) {
-    Optional<MyUser> found = userRepository.findByUserNameOrEmail(signUpRequest.getUsername(), signUpRequest.getEmail());
+    Optional<MyUser> found = userRepository.findByUserNameOrEmail(signUpRequest.getUserName(), signUpRequest.getEmail());
     if(found.isPresent()) {
       return new ResponseEntity("Username or email already in use!",
           HttpStatus.BAD_REQUEST);
     }
     // Creating user's account
-    MyUser user = new MyUser(
-        signUpRequest.getUsername(),
-        signUpRequest.getPassword(),
-        signUpRequest.getName(),
-        signUpRequest.getSurname(),
-        signUpRequest.getEmail());
-
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-    MyUser result = userRepository.save(user);
+    MyUser user = myUserMapper.from(signUpRequest);
+    userRepository.save(user);
     return ResponseEntity.ok("User registered successfully");
   }
 }
