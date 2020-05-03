@@ -80,28 +80,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     GoogleIdToken idToken = verifier.verify(idTokenValue);
     if (idToken != null) {
       GoogleIdToken.Payload payload = idToken.getPayload();
-
       // Print user identifier
       String userId = payload.getSubject();
       System.out.println("User ID: " + userId);
-
-      SignUpDto signUpGoogleUser = new SignUpDto();
-      signUpGoogleUser.setEmail(payload.getEmail());
-      signUpGoogleUser.setName((String)payload.get("name"));
-      signUpGoogleUser.setSurname((String)payload.get("family_name"));
-      signUpGoogleUser.setUserName(payload.getEmail());
-      UserDetails userSaved = null;
-      try {
-        userSaved = customUserDetailsService.loadUserByUsername(payload.getEmail());
-      } catch (UsernameNotFoundException userNotFound){
-        userSaved = customUserDetailsService.save(signUpGoogleUser);
-      }
+      UserDetails userSaved = getOrCreateGoogleUser(payload);
       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userSaved, null, userSaved.getAuthorities());
       authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
       SecurityContextHolder.getContext().setAuthentication(authentication);
     } else {
       throw new Exception("Can not autheticate througt google");
     }
+  }
+
+  private UserDetails getOrCreateGoogleUser(GoogleIdToken.Payload payload) {
+    UserDetails userSaved = null;
+    try {
+      //TODO: specific repo for google users
+      userSaved = customUserDetailsService.loadUserByUsername(payload.getEmail());
+    } catch (UsernameNotFoundException userNotFound){
+      SignUpDto signUpGoogleUser = new SignUpDto();
+      signUpGoogleUser.setEmail(payload.getEmail());
+      String nameAndSurname = (String)payload.get("name");
+      String surname = (String)payload.get("family_name");
+      String name = nameAndSurname.substring(0, nameAndSurname.indexOf(" ".concat(surname)));
+      signUpGoogleUser.setName(name);
+      signUpGoogleUser.setSurname(surname);
+      signUpGoogleUser.setUserName(payload.getEmail());
+      userSaved = customUserDetailsService.save(signUpGoogleUser);
+    }
+    return userSaved;
   }
 
   private String getIdToken(HttpServletRequest request) {
