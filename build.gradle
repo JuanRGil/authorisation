@@ -27,8 +27,13 @@ ext {
 }
 
 dependencies {
+	// Tesseract in backend (build.gradle example)
+	//https://github.com/piersy/BasicTesseractExampleGradle/blob/master/build.gradle
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// https://mvnrepository.com/artifact/com.google.api-client/google-api-client
+	compile group: 'com.google.api-client', name: 'google-api-client', version: '1.30.9'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 	testImplementation "org.testng:testng:6.10", "org.easytesting:fest-assert:1.4"

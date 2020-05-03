@@ -2,6 +2,7 @@ package com.gil.arizon.juan.authorisation.mapper;
 
 import com.gil.arizon.juan.authorisation.domain.MyUser;
 import com.gil.arizon.juan.authorisation.dto.SignUpDto;
+import com.gil.arizon.juan.authorisation.security.CustomUserDetails;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -23,10 +24,11 @@ public abstract class MyUserMapper {
       @Mapping(source = "surname", target = "surname"),
       @Mapping(source = "email", target = "email")
   })
-  public abstract MyUser from(SignUpDto centroSicess);
+  public abstract MyUser from(SignUpDto user);
 
   @Named("encodePassword")
   public String encodePassword(String passToEncode) {
-    return passwordEncoder.encode(passToEncode);
+
+    return passToEncode!= null ? passwordEncoder.encode(passToEncode): null;
   }
 }

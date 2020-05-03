@@ -21,6 +21,8 @@ public class CustomUserDetails implements UserDetails {
 
   private String name;
 
+  private String surname;
+
   private String username;
 
   @JsonIgnore
@@ -36,12 +38,15 @@ public class CustomUserDetails implements UserDetails {
 
 
   public static CustomUserDetails create(MyUser user) {
-    List<GrantedAuthority> authorities = Arrays.asList(
-        new SimpleGrantedAuthority(user.getRole().getRoleName()));
-
+    List<GrantedAuthority> authorities = null;
+    if (user.getRole() != null){
+      authorities = Arrays.asList(
+          new SimpleGrantedAuthority(user.getRole().getRoleName()));
+    }
     return new CustomUserDetails(
         user.getId(),
         user.getName(),
+        user.getSurname(),
         user.getUserName(),
         user.getEmail(),
         user.getPassword(),
@@ -51,18 +56,8 @@ public class CustomUserDetails implements UserDetails {
   }
 
   @Override
-  public String getUsername() {
-    return username;
-  }
-
-  @Override
-  public String getPassword() {
-    return password;
-  }
-
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return authorities;
+  public boolean isEnabled() {
+    return this.isEnabled;
   }
 
   @Override
@@ -78,11 +73,6 @@ public class CustomUserDetails implements UserDetails {
   @Override
   public boolean isCredentialsNonExpired() {
     return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return this.isEnabled;
   }
 
 }
