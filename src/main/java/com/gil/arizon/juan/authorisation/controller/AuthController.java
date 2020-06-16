@@ -49,7 +49,9 @@ public class AuthController {
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDto loginRequest) {
-
+    //TODO mirar esto
+    //https://codeaches.com/spring-cloud-security/oauth2-authorization-jwt
+    //https://docs.spring.io/spring-security-oauth2-boot/docs/2.0.0.RC2/reference/htmlsingle/
 
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
